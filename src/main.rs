@@ -25,23 +25,22 @@ impl Challenge for DayOneChallenge {
             Err(err) => return Err(format!("Unable to load input file because -- {}", err))
         };
 
-        let lines = data.split("\n");
-        let mut last = -1;
+        let (lines, errors): (Vec<_>, Vec<_>) = data.split("\n")
+            .filter(|v| *v != "")
+            .map(|v| v.parse::<i32>())
+            .partition(Result::is_ok);
+
+        if errors.len() > 0 {
+            return Err("One or more lines in the input file could not be converted to a number.".to_string());
+        }
+
+        let lines: Vec<i32> = lines.into_iter().map(Result::unwrap).collect();
+        
         let mut increases = 0;
 
-        for x in lines {
-            if x == "" {
-                continue;
-            }
-            
-            if let Ok(val) = x.parse::<i32>() {
-                if val > last && last != -1 {
-                    increases = increases + 1;
-                }
-    
-                last = val;
-            } else {
-                return Err(format!("The value {} is not a valid number.", x))
+        for slice in lines.windows(2) {
+            if slice[0] < slice[1] {
+                increases = increases + 1;
             }
         }
 
