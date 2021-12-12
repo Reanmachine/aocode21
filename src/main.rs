@@ -2,8 +2,16 @@ extern crate clap;
 
 use clap::{App, Arg, ArgMatches, SubCommand};
 
+use std::fs;
+
 trait Challenge {
     fn run(&self) -> Result<(), String>;
+}
+
+#[derive(Debug)]
+enum ArgumentError {
+    InvalidSubcommand,
+    MissingInput,
 }
 
 struct DayOneChallenge {
@@ -12,15 +20,34 @@ struct DayOneChallenge {
 
 impl Challenge for DayOneChallenge {
     fn run(&self) -> Result<(), String> {
-        println!("Loading file: {}", self.input_file);
+        let data = match fs::read_to_string(&self.input_file) {
+            Ok(d) => d,
+            Err(err) => return Err(format!("Unable to load input file because -- {}", err))
+        };
+
+        let lines = data.split("\n");
+        let mut last = -1;
+        let mut increases = 0;
+
+        for x in lines {
+            if x == "" {
+                continue;
+            }
+            
+            if let Ok(val) = x.parse::<i32>() {
+                if val > last && last != -1 {
+                    increases = increases + 1;
+                }
+    
+                last = val;
+            } else {
+                return Err(format!("The value {} is not a valid number.", x))
+            }
+        }
+
+        println!("Increases: {}", increases);
         Ok(())
     }
-}
-
-#[derive(Debug)]
-enum ArgumentError {
-    InvalidSubcommand,
-    MissingInput,
 }
 
 impl<'a> TryFrom<&ArgMatches<'a>> for DayOneChallenge {
