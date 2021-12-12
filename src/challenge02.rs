@@ -12,12 +12,14 @@ struct Submarine {
 }
 
 impl Submarine {
+    /// Note the "depth" is increased by going down
     fn up(&mut self, by: i32) {
-        self.depth = self.depth + by;
+        self.depth = self.depth - by;
     }
 
+    /// Note the "depth" is decreased by going up
     fn down(&mut self, by: i32) {
-        self.depth = self.depth - by;
+        self.depth = self.depth + by;
     }
 
     fn forward(&mut self, by: i32) {
