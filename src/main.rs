@@ -6,10 +6,12 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 mod common;
 mod challenge01;
 mod challenge02;
+mod challenge03;
 
 use crate::common::ChallengeData;
 use crate::challenge01::day_one_challenge;
 use crate::challenge02::day_two_challenge;
+use crate::challenge03::day_three_challenge;
 
 fn halt_on_err(error: anyhow::Error) {
     eprintln!("ERROR: {}", error);
@@ -40,11 +42,17 @@ fn main() {
                 .help("Sets the input file to use")
                 .required(true)
                 .index(1)))
+        .subcommand(SubCommand::with_name("ch03")
+            .arg(Arg::with_name("INPUT")
+                .help("Sets the input file to use")
+                .required(true)
+                .index(1)))
         .get_matches();
 
     let result = match matches.subcommand() {
         ("ch01", Some(sub_m)) => load_and_run(sub_m, day_one_challenge),
         ("ch02", Some(sub_m)) => load_and_run(sub_m, day_two_challenge),
+        ("ch03", Some(sub_m)) => load_and_run(sub_m, day_three_challenge),
         _ => Err(anyhow!("No command specified"))
     };
 
