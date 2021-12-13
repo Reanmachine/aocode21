@@ -1,10 +1,7 @@
-use std::fs;
-
 use anyhow::{anyhow, bail, Context, Result};
-use clap::{ArgMatches};
 use itertools::Itertools;
 
-use crate::common::{ArgumentError, Challenge};
+use crate::common::{banner, ChallengeData};
 
 struct Submarine {
     position: i32,
@@ -60,60 +57,28 @@ fn get_direction(entry: String) -> Result<Direction> {
     }
 }
 
-pub struct DayTwoChallenge {
-    input_file: String
-}
-
-impl Challenge for DayTwoChallenge {
-    fn run(&self) -> std::result::Result<(), String> {
-        
-        let data = match fs::read_to_string(&self.input_file) {
-            Ok(d) => d,
-            Err(err) => return Err(format!("Unable to load input file because -- {}", err))
-        };
-
-        let (lines, errors): (Vec<_>, Vec<_>) = data.split("\n")
-            .filter(|v| *v != "")
-            .map(|v| get_direction(v.to_string()))
-            .partition(Result::is_ok);
-
-        if errors.len() > 0 {
-            return Err("At least one input is not a valid direction".to_string());
-        }
-
-        let lines: Vec<Direction> = lines.into_iter().map(|v| v.unwrap()).collect();
-
-        let mut submarine = Submarine::default();
-
-        for line in lines {
-            match line {
-                Direction::Forward(x) => { submarine.forward(x) },
-                Direction::Up(x) => { submarine.up(x) },
-                Direction::Down(x) => { submarine.down(x) },
-            }
-        }
-
-        let submarine = submarine;
-
-        println!("Position: {}, Depth: {}, Result: {}", submarine.position, submarine.depth, submarine.compute());
-        Ok(())
+pub fn day_two_challenge(data: &ChallengeData) -> Result<()> {
+    let (lines, errors) = data.process(|v| get_direction(v.to_string()));
+    
+    if errors.len() != 0 {
+        let failures = errors.iter().map(|e| format!("- {:?}", e)).join("\n");
+        bail!("Some inputs are not valid directions:\n{}", failures);
     }
-}
 
-impl<'a> TryFrom<&ArgMatches<'a>> for DayTwoChallenge {
-    type Error = ArgumentError;
+    let mut submarine = Submarine::default();
 
-    fn try_from(matches: &ArgMatches<'a>) -> std::result::Result<DayTwoChallenge, Self::Error> {
-        let mut obj = DayTwoChallenge {
-            input_file: "".to_string()
-        };
-        
-        if let Some(input_file) = matches.value_of("INPUT") {
-            obj.input_file = input_file.to_string();
-        } else {
-            return Err(ArgumentError::MissingInput);
+    for line in lines {
+        match line {
+            Direction::Forward(x) => { submarine.forward(x) },
+            Direction::Up(x) => { submarine.up(x) },
+            Direction::Down(x) => { submarine.down(x) },
         }
-
-        return Ok(obj);
     }
+
+    banner("02 - Part 1", &data.input_file);
+
+    let submarine = submarine;
+    println!("Position: {}, Depth: {}, Result: {}", submarine.position, submarine.depth, submarine.compute());
+
+    Ok(())
 }

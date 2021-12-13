@@ -5,11 +5,11 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 
 mod common;
 mod challenge01;
-// mod challenge02;
+mod challenge02;
 
 use crate::common::ChallengeData;
 use crate::challenge01::day_one_challenge;
-// use crate::challenge02::DayTwoChallenge;
+use crate::challenge02::day_two_challenge;
 
 fn halt_on_err(error: anyhow::Error) {
     eprintln!("ERROR: {}", error);
@@ -44,6 +44,7 @@ fn main() {
 
     let result = match matches.subcommand() {
         ("ch01", Some(sub_m)) => load_and_run(sub_m, day_one_challenge),
+        ("ch02", Some(sub_m)) => load_and_run(sub_m, day_two_challenge),
         _ => Err(anyhow!("No command specified"))
     };
 
