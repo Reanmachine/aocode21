@@ -1,6 +1,6 @@
 use anyhow::{ensure, Result};
 
-use crate::common::ChallengeData;
+use crate::common::{banner, ChallengeData};
 
 pub fn day_one_challenge(data: &ChallengeData) -> Result<()> {
     let (lines, errors) = data.process(|v| v.parse::<i32>());
@@ -11,6 +11,8 @@ pub fn day_one_challenge(data: &ChallengeData) -> Result<()> {
         .filter(|x| x[0] < x[1])
         .count();
 
+    banner("01", &data.input_file);
     println!("Increases: {}", increases);
+
     Ok(())
 }

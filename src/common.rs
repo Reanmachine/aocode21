@@ -1,7 +1,6 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use anyhow;
 use clap::{ArgMatches};
 use thiserror::{Error};
 
@@ -13,12 +12,8 @@ pub enum ChallengeDataError {
     ArgumentError(String),
 }
 
-pub trait Challenge {
-    fn run(&self, data: &ChallengeData) -> anyhow::Result<()>;
-}
-
 pub struct ChallengeData {
-    input_file: PathBuf,
+    pub input_file: PathBuf,
     lines: Vec<String>
 }
 
@@ -50,10 +45,7 @@ impl ChallengeData {
         }
     }
 
-    pub fn lines(&self) -> std::slice::Iter<String> {
-        self.lines.iter()
-    }
-
+    /// Process the lines into a collection of results/errors
     pub fn process<T, E>(&self, processor: fn(&String) -> Result<T, E>) -> (Vec<T>, Vec<E>) {
         let (values, errors) = self.lines.iter()
             .map(processor)
@@ -67,4 +59,21 @@ impl ChallengeData {
 
         (values, errors)
     }
+}
+
+pub fn banner(challenge: &str, input: &PathBuf) {
+    let input_str = match input.to_str() {
+        Some(v) => v,
+        None => "??"
+    };
+
+    let text = format!("// Advent of Code 2021 -- Challenge {} -- Input = {}", challenge, input_str);
+    
+    for _ in 0..text.to_string().len() {
+        print!("/");
+    }
+
+    println!();
+    println!("{}", text);
+    println!();
 }
