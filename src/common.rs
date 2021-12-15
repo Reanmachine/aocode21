@@ -45,6 +45,10 @@ impl ChallengeData {
         }
     }
 
+    pub fn lines(&self) -> &Vec<String> {
+        &self.lines
+    }
+
     /// Process the lines into a collection of results/errors
     pub fn process<T, E>(&self, processor: fn(&String) -> Result<T, E>) -> (Vec<T>, Vec<E>) {
         let (values, errors) = self.lines.iter()
